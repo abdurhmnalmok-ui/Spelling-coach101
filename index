@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرّب الإملاء - Spelling Practice App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .ltr {
+            direction: ltr;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <i class="fa-solid fa-graduation-cap text-3xl text-indigo-200"></i>
+                <h1 class="text-xl font-bold">مدرّب السبلينق التفاعلي</h1>
+            </div>
+            <div id="statsBadge" class="bg-indigo-700 text-indigo-100 text-sm px-3 py-1 rounded-full font-medium">
+                0 كلمات
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-gray-200 mb-6 bg-white rounded-xl p-1 shadow-sm">
+            <button id="tabPractice" onclick="switchTab('practice')" class="flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white">
+                <i class="fa-solid fa-gamepad"></i> وضع التدريب والتكرار
+            </button>
+            <button id="tabManage" onclick="switchTab('manage')" class="flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600">
+                <i class="fa-solid fa-list-check"></i> إدارة قائمتي
+            </button>
+        </div>
+
+        <!-- PRACTICE SECTION -->
+        <section id="practiceSection" class="block">
+            <!-- Empty State Warning -->
+            <div id="emptyWarning" class="hidden bg-amber-50 border-r-4 border-amber-500 p-6 rounded-xl shadow-sm text-amber-900 mb-6 text-center">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-amber-500 mb-2"></i>
+                <h3 class="text-lg font-bold mb-1">لا توجد كلمات في قائمتك حالياً!</h3>
+                <p class="text-sm">قم بإضافة بعض الكلمات أولاً من تبويب "إدارة قائمتي" للبدء بالتدريب.</p>
+                <button onclick="switchTab('manage')" class="mt-4 bg-amber-500 text-white px-5 py-2 rounded-lg hover:bg-amber-600 transition font-bold text-sm">
+                    إضافة كلمات الآن
+                </button>
+            </div>
+
+            <!-- Active Practice Box -->
+            <div id="practiceCard" class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 md:p-8 text-center max-w-xl mx-auto">
+                <div class="flex justify-between items-center text-sm text-slate-500 mb-4 border-b pb-3">
+                    <span id="progressText">الكلمة 1 من 10</span>
+                    <span id="streakCount" class="text-emerald-600 font-bold"><i class="fa-solid fa-fire"></i> سلسلة النجاح: 0</span>
+                </div>
+
+                <!-- Word Hint (Arabic Translation) -->
+                <div class="my-6">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold block mb-1">معنى الكلمة بالعربية</span>
+                    <h2 id="arabicMeaning" class="text-3xl font-extrabold text-slate-800">--</h2>
+                </div>
+
+                <!-- Audio Play Button -->
+                <button onclick="playCurrentWordAudio()" class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold px-4 py-2 rounded-full transition mb-6">
+                    <i class="fa-solid fa-volume-high text-lg"></i>
+                    <span>استمع للطق (Audio)</span>
+                </button>
+
+                <!-- Input Form -->
+                <form id="spellingForm" onsubmit="checkSpelling(event)" class="space-y-4">
+                    <div class="relative max-w-sm mx-auto">
+                        <input type="text" id="userInput" autocomplete="off" spellcheck="false" placeholder="اكتب الكلمة بالإنجليزية هنا..." class="w-full text-center text-2xl font-mono tracking-widest py-3 px-4 rounded-xl border-2 border-slate-300 focus:border-indigo-600 focus:outline-none transition shadow-inner ltr">
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full max-w-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-lg shadow-indigo-200">
+                        تحقق من الإجابة
+                    </button>
+                </form>
+
+                <!-- Feedback Message -->
+                <div id="feedback" class="mt-6 hidden p-4 rounded-xl text-center font-bold"></div>
+
+                <!-- Next Button -->
+                <button id="nextBtn" onclick="nextWord()" class="mt-4 hidden w-full max-w-sm bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl transition">
+                    الكلمة التالية <i class="fa-solid fa-arrow-left mr-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- MANAGE SECTION -->
+        <section id="manageSection" class="hidden">
+            <!-- Add Word Form -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 mb-8">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-indigo-600"></i> إضافة كلمة جديدة
+                </h2>
+                <form onsubmit="addNewWord(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">الكلمة بالإنجليزية (English)</label>
+                        <input type="text" id="newWordEn" required placeholder="e.g. Schedule" class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-600 focus:outline-none ltr">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">معناها بالعربية (Arabic)</label>
+                        <input type="text" id="newWordAr" required placeholder="مثال: جدول أوقات" class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-600 focus:outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> إضافة للتمارين
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Words List -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-slate-800">قائمة كلماتك للحفظ</h2>
+                    <button onclick="loadDefaultWords()" class="text-xs text-indigo-600 hover:underline">
+                        إضافة كلمات تجريبية شائعة
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                                <th class="p-3 rounded-r-lg">الكلمة (English)</th>
+                                <th class="p-3">الترجمة (Arabic)</th>
+                                <th class="p-3">الاستماع</th>
+                                <th class="p-3 rounded-l-lg text-center">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wordsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Words will be rendered here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        مدرّب السبلينق - التكرار هو سر الإتقان! 🚀
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Default seed words if user list is empty
+        const defaultWords = [
+            { id: '1', english: 'necessary', arabic: 'ضروري' },
+            { id: '2', english: 'beautiful', arabic: 'جميل' },
+            { id: '3', english: 'receive', arabic: 'يستلم / يتلقى' },
+            { id: '4', english: 'business', arabic: 'عمل / تجارة' },
+            { id: '5', english: 'environment', arabic: 'بيئة' }
+        ];
+
+        // State variables
+        let wordsList = JSON.parse(localStorage.getItem('spellingWords')) || defaultWords;
+        let currentIndex = 0;
+        let streak = 0;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            saveWordsToStorage();
+            updateStats();
+            renderWordsTable();
+            startPracticeSession();
+        });
+
+        // Local Storage Helper
+        function saveWordsToStorage() {
+            localStorage.setItem('spellingWords', JSON.stringify(wordsList));
+            updateStats();
+        }
+
+        // Stats Update
+        function updateStats() {
+            document.getElementById('statsBadge').innerText = `${wordsList.length} كلمات في قائمتك`;
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            const practiceSection = document.getElementById('practiceSection');
+            const manageSection = document.getElementById('manageSection');
+            const tabPractice = document.getElementById('tabPractice');
+            const tabManage = document.getElementById('tabManage');
+
+            if (tabName === 'practice') {
+                practiceSection.classList.remove('hidden');
+                manageSection.classList.add('hidden');
+                tabPractice.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white';
+                tabManage.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
+                startPracticeSession();
+            } else {
+                practiceSection.classList.add('hidden');
+                manageSection.classList.remove('hidden');
+                tabManage.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white';
+                tabPractice.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
+            }
+        }
+
+        // Text-to-Speech Engine
+        function playAudio(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85; // Slightly slower for clarity
+                window.speechSynthesis.cancel(); // Clear previous speech queue
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('عذراً، متصفحك لا يدعم قراءة الصوت.');
+            }
+        }
+
+        function playCurrentWordAudio() {
+            if (wordsList.length > 0 && wordsList[currentIndex]) {
+                playAudio(wordsList[currentIndex].english);
+            }
+        }
+
+        // Start / Render Practice Session
+        function startPracticeSession() {
+            const emptyWarning = document.getElementById('emptyWarning');
+            const practiceCard = document.getElementById('practiceCard');
+
+            if (wordsList.length === 0) {
+                emptyWarning.classList.remove('hidden');
+                practiceCard.classList.add('hidden');
+                return;
+            }
+
+            emptyWarning.classList.add('hidden');
+            practiceCard.classList.remove('hidden');
+
+            if (currentIndex >= wordsList.length) {
+                currentIndex = 0; // Loop back
+            }
+
+            const currentWord = wordsList[currentIndex];
+            document.getElementById('arabicMeaning').innerText = currentWord.arabic;
+            document.getElementById('progressText').innerText = `الكلمة ${currentIndex + 1} من ${wordsList.length}`;
+            document.getElementById('userInput').value = '';
+            document.getElementById('feedback').className = 'mt-6 hidden p-4 rounded-xl text-center font-bold';
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('userInput').disabled = false;
+            document.getElementById('userInput').focus();
+
+            // Play sound automatically on word load
+            playAudio(currentWord.english);
+        }
+
+        // Check Spelling Logic
+        function checkSpelling(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('userInput').value.trim().toLowerCase();
+            const targetWord = wordsList[currentIndex].english.trim().toLowerCase();
+            const feedback = document.getElementById('feedback');
+            const submitBtn = document.getElementById('submitBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const userInput = document.getElementById('userInput');
+
+            if (!inputVal) return;
+
+            feedback.classList.remove('hidden');
+
+            if (inputVal === targetWord) {
+                // Correct Answer
+                streak++;
+                feedback.className = 'mt-6 p-4 rounded-xl text-center font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-xl ml-2"></i> أحسنت! إجابة صحيحة: <span class="font-mono text-lg">${wordsList[currentIndex].english}</span>`;
+                
+                userInput.disabled = true;
+                submitBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+            } else {
+                // Incorrect Answer
+                streak = 0; // Reset streak
+                feedback.className = 'mt-6 p-4 rounded-xl text-center font-bold bg-rose-100 text-rose-800 border border-rose-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl ml-2"></i> خطأ! الإملاء الصحيح هو: <span class="font-mono text-lg underline">${wordsList[currentIndex].english}</span>`;
+                
+                userInput.disabled = true;
+                submitBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+
+                // Repeat incorrect words by pushing them back to the list
+                wordsList.push(wordsList[currentIndex]);
+                updateStats();
+            }
+
+            document.getElementById('streakCount').innerHTML = `<i class="fa-solid fa-fire"></i> سلسلة النجاح: ${streak}`;
+        }
+
+        // Next Word Handler
+        function nextWord() {
+            currentIndex++;
+            startPracticeSession();
+        }
+
+        // Word Management Functions
+        function renderWordsTable() {
+            const tableBody = document.getElementById('wordsTableBody');
+            tableBody.innerHTML = '';
+
+            if (wordsList.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-6 text-slate-400">لا توجد كلمات مضافة حالياً.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            wordsList.forEach((word, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-slate-800 ltr text-right">${word.english}</td>
+                    <td class="p-3 text-slate-600">${word.arabic}</td>
+                    <td class="p-3">
+                        <button onclick="playAudio('${word.english}')" class="text-indigo-600 hover:text-indigo-800 p-1">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteWord('${word.id}')" class="text-rose-500 hover:text-rose-700 p-1">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function addNewWord(e) {
+            e.preventDefault();
+            const enInput = document.getElementById('newWordEn');
+            const arInput = document.getElementById('newWordAr');
+
+            const newEntry = {
+                id: Date.now().toString(),
+                english: enInput.value.trim(),
+                arabic: arInput.value.trim()
+            };
+
+            wordsList.unshift(newEntry); // Add to beginning
+            saveWordsToStorage();
+            renderWordsTable();
+
+            enInput.value = '';
+            arInput.value = '';
+            enInput.focus();
+        }
+
+        function deleteWord(id) {
+            wordsList = wordsList.filter(item => item.id !== id);
+            saveWordsToStorage();
+            renderWordsTable();
+        }
+
+        function loadDefaultWords() {
+            wordsList = [...defaultWords];
+            saveWordsToStorage();
+            renderWordsTable();
+        }
+    </script>
+</body>
+</html>
