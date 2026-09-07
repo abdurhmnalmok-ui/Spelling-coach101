@@ -2,7 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>مدرّب الإملاء - Spelling Practice App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -10,134 +13,142 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         body {
             font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .ltr {
             direction: ltr;
         }
+        /* Mobile layout adjustments */
+        input {
+            -webkit-appearance: none;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between select-none">
 
-    <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <i class="fa-solid fa-graduation-cap text-3xl text-indigo-200"></i>
-                <h1 class="text-xl font-bold">مدرّب السبلينق التفاعلي</h1>
+    <!-- Header / Top Bar -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50 pt-safe">
+        <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <i class="fa-solid fa-mobile-screen-button text-2xl text-indigo-200"></i>
+                <h1 class="text-lg font-bold">مدرّب السبلينق</h1>
             </div>
-            <div id="statsBadge" class="bg-indigo-700 text-indigo-100 text-sm px-3 py-1 rounded-full font-medium">
+            <div id="statsBadge" class="bg-indigo-700 text-indigo-100 text-xs px-3 py-1.5 rounded-full font-semibold shadow-inner">
                 0 كلمات
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+    <!-- Main Content Body -->
+    <main class="max-w-xl mx-auto px-3 py-4 w-full flex-grow pb-12">
         
-        <!-- Navigation Tabs -->
-        <div class="flex border-b border-gray-200 mb-6 bg-white rounded-xl p-1 shadow-sm">
-            <button id="tabPractice" onclick="switchTab('practice')" class="flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white">
-                <i class="fa-solid fa-gamepad"></i> وضع التدريب والتكرار
+        <!-- Navigation Tabs (Optimized for Touch) -->
+        <div class="grid grid-cols-2 gap-1 mb-4 bg-white p-1 rounded-2xl shadow-sm border border-slate-200/80">
+            <button id="tabPractice" onclick="switchTab('practice')" class="py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
+                <i class="fa-solid fa-gamepad text-base"></i> التكرار والإملاء
             </button>
-            <button id="tabManage" onclick="switchTab('manage')" class="flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600">
-                <i class="fa-solid fa-list-check"></i> إدارة قائمتي
+            <button id="tabManage" onclick="switchTab('manage')" class="py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600">
+                <i class="fa-solid fa-list-check text-base"></i> إدارة الكلمات
             </button>
         </div>
 
+        <!-- PRACTICE SECTION -->
         <section id="practiceSection" class="block">
-            <!-- Empty State Warning -->
-            <div id="emptyWarning" class="hidden bg-amber-50 border-r-4 border-amber-500 p-6 rounded-xl shadow-sm text-amber-900 mb-6 text-center">
-                <i class="fa-solid fa-triangle-exclamation text-4xl text-amber-500 mb-2"></i>
-                <h3 class="text-lg font-bold mb-1">لا توجد كلمات في قائمتك حالياً!</h3>
-                <p class="text-sm">قم بإضافة بعض الكلمات أولاً من تبويب "إدارة قائمتي" للبدء بالتدريب.</p>
-                <button onclick="switchTab('manage')" class="mt-4 bg-amber-500 text-white px-5 py-2 rounded-lg hover:bg-amber-600 transition font-bold text-sm">
-                    إضافة كلمات الآن
+            <!-- Empty State -->
+            <div id="emptyWarning" class="hidden bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm text-amber-900 text-center my-4">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-amber-500 mb-3"></i>
+                <h3 class="text-lg font-bold mb-1">القائمة فارغة حالياً!</h3>
+                <p class="text-xs text-amber-700 mb-4">أضف بعض الكلمات التي تريد التدرب عليها للبدء.</p>
+                <button onclick="switchTab('manage')" class="w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-white py-3 rounded-xl font-bold text-sm shadow transition">
+                    إضافة كلمات جديدة
                 </button>
             </div>
 
-            <!-- Active Practice Box -->
-            <div id="practiceCard" class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 md:p-8 text-center max-w-xl mx-auto">
-                <div class="flex justify-between items-center text-sm text-slate-500 mb-4 border-b pb-3">
-                    <span id="progressText">الكلمة 1 من 10</span>
-                    <span id="streakCount" class="text-emerald-600 font-bold"><i class="fa-solid fa-fire"></i> سلسلة النجاح: 0</span>
+            <!-- Active Practice Card -->
+            <div id="practiceCard" class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-5 text-center">
+                
+                <div class="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2 border-b border-slate-100">
+                    <span id="progressText" class="font-medium bg-slate-100 px-2.5 py-1 rounded-md">الكلمة 1 من 10</span>
+                    <span id="streakCount" class="text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-md">
+                        <i class="fa-solid fa-fire text-amber-500"></i> السلسلة: 0
+                    </span>
                 </div>
 
                 <!-- Word Hint (Arabic Translation) -->
-                <div class="my-6">
-                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold block mb-1">معنى الكلمة بالعربية</span>
-                    <h2 id="arabicMeaning" class="text-3xl font-extrabold text-slate-800">--</h2>
+                <div class="my-4 py-2">
+                    <span class="text-xs font-semibold text-slate-400 block mb-1">المعنى بالعربية</span>
+                    <h2 id="arabicMeaning" class="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">--</h2>
                 </div>
 
-                <!-- Audio Play Button -->
-                <button onclick="playCurrentWordAudio()" class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold px-4 py-2 rounded-full transition mb-6">
-                    <i class="fa-solid fa-volume-high text-lg"></i>
-                    <span>استمع للنطق (Audio)</span>
+                <!-- Touch-friendly Audio Button -->
+                <button type="button" onclick="playCurrentWordAudio()" class="w-full active:scale-95 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-2xl transition flex items-center justify-center gap-2 mb-5 border border-indigo-100">
+                    <i class="fa-solid fa-volume-high text-xl text-indigo-600 animate-pulse"></i>
+                    <span class="text-sm">استمع لنطق الكلمة (Listen)</span>
                 </button>
 
-                <!-- Input Form -->
-                <form id="spellingForm" onsubmit="checkSpelling(event)" class="space-y-4">
-                    <div class="relative max-w-sm mx-auto">
-                        <input type="text" id="userInput" autocomplete="off" spellcheck="false" placeholder="اكتب الكلمة بالإنجليزية هنا..." class="w-full text-center text-2xl font-mono tracking-widest py-3 px-4 rounded-xl border-2 border-slate-300 focus:border-indigo-600 focus:outline-none transition shadow-inner ltr">
+                <!-- Input Form for Mobile -->
+                <form id="spellingForm" onsubmit="checkSpelling(event)" class="space-y-3">
+                    <div class="relative">
+                        <!-- Mobile keyboard helpers: autocapitalize=none, autocorrect=off, spellcheck=false -->
+                        <input type="text" 
+                               id="userInput" 
+                               autocomplete="off" 
+                               autocorrect="off" 
+                               autocapitalize="none" 
+                               spellcheck="false" 
+                               placeholder="اكتب الإملاء هنا..." 
+                               class="w-full text-center text-xl sm:text-2xl font-mono tracking-wider py-3.5 px-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:outline-none transition bg-slate-50 focus:bg-white ltr shadow-inner">
                     </div>
 
-                    <button type="submit" id="submitBtn" class="w-full max-w-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-lg shadow-indigo-200">
+                    <button type="submit" id="submitBtn" class="w-full active:scale-95 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-md shadow-indigo-200 text-base">
                         تحقق من الإجابة
                     </button>
                 </form>
 
-                <!-- Feedback Message -->
-                <div id="feedback" class="mt-6 hidden p-4 rounded-xl text-center font-bold"></div>
+                <!-- Feedback Toast -->
+                <div id="feedback" class="mt-4 hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
 
                 <!-- Next Button -->
-                <button id="nextBtn" onclick="nextWord()" class="mt-4 hidden w-full max-w-sm bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl transition">
+                <button id="nextBtn" onclick="nextWord()" class="mt-4 hidden w-full active:scale-95 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-6 rounded-2xl transition text-base">
                     الكلمة التالية <i class="fa-solid fa-arrow-left mr-2"></i>
                 </button>
             </div>
         </section>
 
+        <!-- MANAGE SECTION -->
         <section id="manageSection" class="hidden">
-            <!-- Add Word Form -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 mb-8">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-indigo-600"></i> إضافة كلمة جديدة
+            <!-- Add Word Box -->
+            <div class="bg-white p-5 rounded-3xl shadow-md border border-slate-200/60 mb-6">
+                <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-indigo-600 text-lg"></i> إضافة كلمة جديدة
                 </h2>
-                <form onsubmit="addNewWord(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <form onsubmit="addNewWord(event)" class="space-y-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">الكلمة بالإنجليزية (English)</label>
-                        <input type="text" id="newWordEn" required placeholder="e.g. Schedule" class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-600 focus:outline-none ltr">
+                        <input type="text" id="newWordEn" required autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="مثال: Schedule" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-sm ltr bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">معناها بالعربية (Arabic)</label>
-                        <input type="text" id="newWordAr" required placeholder="مثال: جدول أوقات" class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-600 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">الترجمة بالعربية (Arabic)</label>
+                        <input type="text" id="newWordAr" required autocomplete="off" placeholder="مثال: جدول أوقات" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-sm bg-slate-50">
                     </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> إضافة للتمارين
-                        </button>
-                    </div>
+                    <button type="submit" class="w-full active:scale-95 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-md flex justify-center items-center gap-2 text-sm mt-2">
+                        <i class="fa-solid fa-plus"></i> إضافة إلى التمارين
+                    </button>
                 </form>
             </div>
 
-            <!-- Words List -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-slate-800">قائمة كلماتك للحفظ</h2>
-                    <button onclick="loadDefaultWords()" class="text-xs text-indigo-600 hover:underline">
-                        إضافة كلمات تجريبية شائعة
+            <!-- Words List for Mobile -->
+            <div class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-5">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h2 class="text-base font-bold text-slate-800">كلماتك المضافة</h2>
+                    <button onclick="loadDefaultWords()" class="text-xs text-indigo-600 hover:underline font-bold">
+                        استعادة العينة الافتراضية
                     </button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                                <th class="p-3 rounded-r-lg">الكلمة (English)</th>
-                                <th class="p-3">الترجمة (Arabic)</th>
-                                <th class="p-3">الاستماع</th>
-                                <th class="p-3 rounded-l-lg text-center">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="wordsTableBody" class="divide-y divide-slate-100 text-sm">
-                            <!-- Words will be rendered here dynamically -->
-                        </tbody>
-                    </table>
+                
+                <div id="wordsMobileList" class="space-y-2">
+                    <!-- Dynamic cards for mobile view -->
                 </div>
             </div>
         </section>
@@ -145,11 +156,15 @@
     </main>
 
     <!-- Footer -->
-    <!-- JavaScript Logic -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 sticky bottom-0 z-40">
+        مدرّب السبلينق التفاعلي 🚀 - مخصص للجوال
+    </footer>
+
+    <!-- JavaScript Application Logic -->
     <script>
-        // Default seed words if user list is empty
+        // Sample default words
         const defaultWords = [
-            { id: '1', english: 'curious', arabic: 'فضولي / مهتم' },
+            { id: '1', english: 'curious', arabic: 'فضولي / شغوف' },
             { id: '2', english: 'famous', arabic: 'مشهور' },
             { id: '3', english: 'shivering', arabic: 'يرتعش' },
             { id: '4', english: 'missing', arabic: 'مفقود' },
@@ -159,31 +174,31 @@
             { id: '8', english: 'rough', arabic: 'خشن / قاسي' }
         ];
 
-        // State variables
+        // App state
         let wordsList = JSON.parse(localStorage.getItem('spellingWords')) || defaultWords;
         let currentIndex = 0;
         let streak = 0;
 
-        // Initialize App
+        // Initialize App on DOM Ready
         document.addEventListener('DOMContentLoaded', () => {
             saveWordsToStorage();
             updateStats();
-            renderWordsTable();
+            renderWordsList();
             startPracticeSession();
         });
 
-        // Local Storage Helper
+        // Save data to localStorage
         function saveWordsToStorage() {
             localStorage.setItem('spellingWords', JSON.stringify(wordsList));
             updateStats();
         }
 
-        // Stats Update
+        // Update top badge count
         function updateStats() {
             document.getElementById('statsBadge').innerText = `${wordsList.length} كلمات في قائمتك`;
         }
 
-        // Tab Switching
+        // Tab Switcher
         function switchTab(tabName) {
             const practiceSection = document.getElementById('practiceSection');
             const manageSection = document.getElementById('manageSection');
@@ -193,24 +208,24 @@
             if (tabName === 'practice') {
                 practiceSection.classList.remove('hidden');
                 manageSection.classList.add('hidden');
-                tabPractice.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white';
-                tabManage.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
+                tabPractice.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
+                tabManage.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
                 startPracticeSession();
             } else {
                 practiceSection.classList.add('hidden');
                 manageSection.classList.remove('hidden');
-                tabManage.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 bg-indigo-600 text-white';
-                tabPractice.className = 'flex-1 py-3 font-bold rounded-lg transition-all text-center flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
+                tabManage.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
+                tabPractice.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
             }
         }
 
-        // Text-to-Speech Engine
+        // TTS Audio Engine with Mobile Gesture compatibility
         function playAudio(text) {
             if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Reset speech queue
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
-                utterance.rate = 0.85; // Slightly slower for clarity
-                window.speechSynthesis.cancel(); // Clear previous speech queue
+                utterance.rate = 0.85; // Natural slower pace for learning
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -221,7 +236,7 @@
             }
         }
 
-        // Start / Render Practice Session
+        // Start / Setup Card
         function startPracticeSession() {
             const emptyWarning = document.getElementById('emptyWarning');
             const practiceCard = document.getElementById('practiceCard');
@@ -232,106 +247,104 @@
                 return;
             }
 
-            emptyWarning.classList.remove('hidden');
+            emptyWarning.classList.add('hidden');
             practiceCard.classList.remove('hidden');
 
             if (currentIndex >= wordsList.length) {
-                currentIndex = 0; // Loop back
+                currentIndex = 0; // Loop list
             }
 
             const currentWord = wordsList[currentIndex];
             document.getElementById('arabicMeaning').innerText = currentWord.arabic;
             document.getElementById('progressText').innerText = `الكلمة ${currentIndex + 1} من ${wordsList.length}`;
-            document.getElementById('userInput').value = '';
-            document.getElementById('feedback').className = 'mt-6 hidden p-4 rounded-xl text-center font-bold';
+            
+            const userInput = document.getElementById('userInput');
+            userInput.value = '';
+            userInput.disabled = false;
+
+            document.getElementById('feedback').className = 'mt-4 hidden p-4 rounded-2xl text-center font-bold text-sm';
             document.getElementById('nextBtn').classList.add('hidden');
             document.getElementById('submitBtn').classList.remove('hidden');
-            document.getElementById('userInput').disabled = false;
-            document.getElementById('userInput').focus();
 
-            // Play sound automatically on word load
-            playAudio(currentWord.english);
+            // Play word sound on load
+            playCurrentWordAudio();
         }
 
-        // Check Spelling Logic
+        // Check Spelling
         function checkSpelling(e) {
             e.preventDefault();
-            const inputVal = document.getElementById('userInput').value.trim().toLowerCase();
+            const userInput = document.getElementById('userInput');
+            const inputVal = userInput.value.trim().toLowerCase();
             const targetWord = wordsList[currentIndex].english.trim().toLowerCase();
             const feedback = document.getElementById('feedback');
             const submitBtn = document.getElementById('submitBtn');
             const nextBtn = document.getElementById('nextBtn');
-            const userInput = document.getElementById('userInput');
 
             if (!inputVal) return;
 
             feedback.classList.remove('hidden');
 
             if (inputVal === targetWord) {
-                // Correct Answer
+                // Correct
                 streak++;
-                feedback.className = 'mt-6 p-4 rounded-xl text-center font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-xl ml-2"></i> أحسنت! إجابة صحيحة: <span class="font-mono text-lg">${wordsList[currentIndex].english}</span>`;
+                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-lg ml-1"></i> إجابة صحيحة ممتاز! <br><span class="font-mono text-base font-black tracking-wider text-emerald-900">${wordsList[currentIndex].english}</span>`;
                 
                 userInput.disabled = true;
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
             } else {
-                // Incorrect Answer
-                streak = 0; // Reset streak
-                feedback.className = 'mt-6 p-4 rounded-xl text-center font-bold bg-rose-100 text-rose-800 border border-rose-300';
-                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl ml-2"></i> خطأ! الإملاء الصحيح هو: <span class="font-mono text-lg underline">${wordsList[currentIndex].english}</span>`;
+                // Wrong
+                streak = 0;
+                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg ml-1"></i> تحتاچ تكرار! الإملاء الصحيح: <br><span class="font-mono text-base font-black tracking-wider text-rose-900 underline">${wordsList[currentIndex].english}</span>`;
                 
                 userInput.disabled = true;
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
 
-                // Repeat incorrect words by pushing them back to the list
+                // Re-queue incorrect word for practice repetition
                 wordsList.push(wordsList[currentIndex]);
                 updateStats();
             }
 
-            document.getElementById('streakCount').innerHTML = `<i class="fa-solid fa-fire"></i> سلسلة النجاح: ${streak}`;
+            document.getElementById('streakCount').innerHTML = `<i class="fa-solid fa-fire text-amber-500"></i> السلسلة: ${streak}`;
         }
 
-        // Next Word Handler
+        // Next word
         function nextWord() {
             currentIndex++;
             startPracticeSession();
         }
 
-        // Word Management Functions
-        function renderWordsTable() {
-            const tableBody = document.getElementById('wordsTableBody');
-            tableBody.innerHTML = '';
+        // Render Words for Mobile Management Section
+        function renderWordsList() {
+            const container = document.getElementById('wordsMobileList');
+            container.innerHTML = '';
 
             if (wordsList.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center py-6 text-slate-400">لا توجد كلمات مضافة حالياً.</td>
-                    </tr>
-                `;
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm">لا توجد كلمات في قائمتك.</div>`;
                 return;
             }
 
             wordsList.forEach((word) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
-                tr.innerHTML = `
-                    <td class="p-3 font-mono font-bold text-slate-800 ltr text-right">${word.english}</td>
-                    <td class="p-3 text-slate-600">${word.arabic}</td>
-                    <td class="p-3">
-                        <button onclick="playAudio('${word.english}')" class="text-indigo-600 hover:text-indigo-800 p-1">
-                            <i class="fa-solid fa-volume-high"></i>
+                const card = document.createElement('div');
+                card.className = 'flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100';
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <button onclick="playAudio('${word.english}')" class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center active:scale-90 transition">
+                            <i class="fa-solid fa-volume-high text-sm"></i>
                         </button>
-                    </td>
-                    <td class="p-3 text-center">
-                        <button onclick="deleteWord('${word.id}')" class="text-rose-500 hover:text-rose-700 p-1">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
+                        <div>
+                            <div class="font-mono font-bold text-slate-800 text-base ltr text-right">${word.english}</div>
+                            <div class="text-xs text-slate-500">${word.arabic}</div>
+                        </div>
+                    </div>
+                    <button onclick="deleteWord('${word.id}')" class="text-rose-400 hover:text-rose-600 p-2 active:scale-90 transition">
+                        <i class="fa-solid fa-trash-can text-base"></i>
+                    </button>
                 `;
-                tableBody.appendChild(tr);
+                container.appendChild(card);
             });
         }
 
@@ -346,9 +359,9 @@
                 arabic: arInput.value.trim()
             };
 
-            wordsList.unshift(newEntry); // Add to beginning
+            wordsList.unshift(newEntry);
             saveWordsToStorage();
-            renderWordsTable();
+            renderWordsList();
 
             enInput.value = '';
             arInput.value = '';
@@ -358,13 +371,13 @@
         function deleteWord(id) {
             wordsList = wordsList.filter(item => item.id !== id);
             saveWordsToStorage();
-            renderWordsTable();
+            renderWordsList();
         }
 
         function loadDefaultWords() {
             wordsList = [...defaultWords];
             saveWordsToStorage();
-            renderWordsTable();
+            renderWordsList();
         }
     </script>
 </body>
