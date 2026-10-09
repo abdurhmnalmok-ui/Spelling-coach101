@@ -6,11 +6,11 @@
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>مدرّب الإملاء - Spelling Practice App</title>
+    <title>مدرّب الإملاء والمفردات - Spelling & Vocab Trainer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body {
             font-family: 'Tajawal', sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -19,136 +19,253 @@
         .ltr {
             direction: ltr;
         }
-        /* Mobile layout adjustments */
-        input {
+        input, select, textarea {
             -webkit-appearance: none;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between select-none">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between pb-20 md:pb-6 select-none">
 
-    <!-- Header / Top Bar -->
+    <!-- Top Header -->
     <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50 pt-safe">
-        <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2 space-x-reverse">
-                <i class="fa-solid fa-mobile-screen-button text-2xl text-indigo-200"></i>
-                <h1 class="text-lg font-bold">مدرّب السبلينق</h1>
+                <i class="fa-solid fa-book-bookmark text-2xl text-indigo-200"></i>
+                <div>
+                    <h1 class="text-base font-extrabold leading-tight">مدرّب السبلينق والمفردات</h1>
+                    <p id="activePackageLabel" class="text-[11px] text-indigo-200">الحزمة النشطة: مستوى A1 - المبتدئ</p>
+                </div>
             </div>
-            <div id="statsBadge" class="bg-indigo-700 text-indigo-100 text-xs px-3 py-1.5 rounded-full font-semibold shadow-inner">
-                0 كلمات
+            <div id="statsBadge" class="bg-indigo-700 text-indigo-100 text-xs px-3 py-1.5 rounded-full font-bold shadow-inner">
+                0 مفردة
             </div>
         </div>
     </header>
 
-    <!-- Main Content Body -->
-    <main class="max-w-xl mx-auto px-3 py-4 w-full flex-grow pb-12">
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto px-3 py-4 w-full flex-grow">
         
-        <!-- Navigation Tabs (Optimized for Touch) -->
-        <div class="grid grid-cols-2 gap-1 mb-4 bg-white p-1 rounded-2xl shadow-sm border border-slate-200/80">
-            <button id="tabPractice" onclick="switchTab('practice')" class="py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
-                <i class="fa-solid fa-gamepad text-base"></i> التكرار والإملاء
+        <!-- Navigation Bar (Tabs) -->
+        <nav class="grid grid-cols-4 gap-1 mb-5 bg-white p-1 rounded-2xl shadow-sm border border-slate-200/80 text-xs font-bold text-center">
+            <button id="navPractice" onclick="switchMainTab('practice')" class="py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 bg-indigo-600 text-white shadow">
+                <i class="fa-solid fa-gamepad text-base"></i>
+                <span>اختبار السبلينق</span>
             </button>
-            <button id="tabManage" onclick="switchTab('manage')" class="py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600">
-                <i class="fa-solid fa-list-check text-base"></i> إدارة الكلمات
+            <button id="navNotebook" onclick="switchMainTab('notebook')" class="py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-indigo-600">
+                <i class="fa-solid fa-pen-to-square text-base"></i>
+                <span>كتابة بالدفتر</span>
             </button>
-        </div>
+            <button id="navEncyclopedia" onclick="switchMainTab('encyclopedia')" class="py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-indigo-600">
+                <i class="fa-solid fa-layer-group text-base"></i>
+                <span>المستويات والجمل</span>
+            </button>
+            <button id="navManage" onclick="switchMainTab('manage')" class="py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-indigo-600">
+                <i class="fa-solid fa-sliders text-base"></i>
+                <span>قائمتي الخاصة</span>
+            </button>
+        </nav>
 
-        <!-- PRACTICE SECTION -->
-        <section id="practiceSection" class="block">
-            <!-- Empty State -->
-            <div id="emptyWarning" class="hidden bg-amber-50 border border-amber-200 p-6 rounded-2xl shadow-sm text-amber-900 text-center my-4">
-                <i class="fa-solid fa-triangle-exclamation text-4xl text-amber-500 mb-3"></i>
-                <h3 class="text-lg font-bold mb-1">القائمة فارغة حالياً!</h3>
-                <p class="text-xs text-amber-700 mb-4">أضف بعض الكلمات التي تريد التدرب عليها للبدء.</p>
-                <button onclick="switchTab('manage')" class="w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-white py-3 rounded-xl font-bold text-sm shadow transition">
-                    إضافة كلمات جديدة
+        <!-- SECTION 1: SPELLING PRACTICE -->
+        <section id="sectionPractice" class="block">
+            <div id="emptyPracticeWarning" class="hidden bg-amber-50 border border-amber-200 p-6 rounded-2xl text-amber-900 text-center my-4">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-amber-500 mb-2"></i>
+                <h3 class="text-base font-bold mb-1">لا توجد كلمات في الحزمة الحالية!</h3>
+                <p class="text-xs text-amber-700 mb-4">اختر حزمة مستويات (A1 - A2 - B1) أو أضف كلماتك الخاصة للبدء.</p>
+                <button onclick="switchMainTab('encyclopedia')" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow">
+                    استعراض حزم المستويات
                 </button>
             </div>
 
-            <!-- Active Practice Card -->
             <div id="practiceCard" class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-5 text-center">
-                
                 <div class="flex justify-between items-center text-xs text-slate-500 mb-4 pb-2 border-b border-slate-100">
-                    <span id="progressText" class="font-medium bg-slate-100 px-2.5 py-1 rounded-md">الكلمة 1 من 10</span>
-                    <span id="streakCount" class="text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-md">
+                    <span id="progressText" class="font-bold bg-slate-100 px-3 py-1 rounded-lg">الكلمة 1 من 10</span>
+                    <span id="streakCount" class="text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded-lg">
                         <i class="fa-solid fa-fire text-amber-500"></i> السلسلة: 0
                     </span>
                 </div>
 
-                <!-- Word Hint (Arabic Translation) -->
-                <div class="my-4 py-2">
-                    <span class="text-xs font-semibold text-slate-400 block mb-1">المعنى بالعربية</span>
-                    <h2 id="arabicMeaning" class="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">--</h2>
+                <div class="my-3 py-2">
+                    <span class="text-[11px] font-extrabold uppercase text-indigo-500 tracking-wider block mb-1">المعنى والترجمة</span>
+                    <h2 id="arabicMeaning" class="text-2xl sm:text-3xl font-black text-slate-800 leading-snug">--</h2>
+                    <p id="sentenceHint" class="text-xs text-slate-500 mt-2 italic hidden bg-slate-50 p-2 rounded-xl border border-slate-100"></p>
                 </div>
 
-                <!-- Touch-friendly Audio Button -->
-                <button type="button" onclick="playCurrentWordAudio()" class="w-full active:scale-95 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-2xl transition flex items-center justify-center gap-2 mb-5 border border-indigo-100">
+                <button type="button" onclick="playCurrentWordAudio()" class="w-full active:scale-95 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-2xl transition flex items-center justify-center gap-2 mb-4 border border-indigo-100">
                     <i class="fa-solid fa-volume-high text-xl text-indigo-600 animate-pulse"></i>
-                    <span class="text-sm">استمع لنطق الكلمة (Listen)</span>
+                    <span class="text-xs font-extrabold">استمع للنطق الصوتي (Audio)</span>
                 </button>
 
-                <!-- Input Form for Mobile -->
                 <form id="spellingForm" onsubmit="checkSpelling(event)" class="space-y-3">
-                    <div class="relative">
-                        <!-- Mobile keyboard helpers: autocapitalize=none, autocorrect=off, spellcheck=false -->
-                        <input type="text" 
-                               id="userInput" 
-                               autocomplete="off" 
-                               autocorrect="off" 
-                               autocapitalize="none" 
-                               spellcheck="false" 
-                               placeholder="اكتب الإملاء هنا..." 
-                               class="w-full text-center text-xl sm:text-2xl font-mono tracking-wider py-3.5 px-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:outline-none transition bg-slate-50 focus:bg-white ltr shadow-inner">
-                    </div>
+                    <input type="text" 
+                           id="userInput" 
+                           autocomplete="off" 
+                           autocorrect="off" 
+                           autocapitalize="none" 
+                           spellcheck="false" 
+                           placeholder="اكتب الإملاء هنا..." 
+                           class="w-full text-center text-xl sm:text-2xl font-mono tracking-wider py-3.5 px-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:outline-none transition bg-slate-50 focus:bg-white ltr shadow-inner">
 
-                    <button type="submit" id="submitBtn" class="w-full active:scale-95 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-md shadow-indigo-200 text-base">
+                    <button type="submit" id="submitBtn" class="w-full active:scale-95 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-2xl transition shadow-md text-sm">
                         تحقق من الإجابة
                     </button>
                 </form>
 
-                <!-- Feedback Toast -->
-                <div id="feedback" class="mt-4 hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
+                <div id="feedback" class="mt-4 hidden p-4 rounded-2xl text-center font-bold text-xs"></div>
 
-                <!-- Next Button -->
-                <button id="nextBtn" onclick="nextWord()" class="mt-4 hidden w-full active:scale-95 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-6 rounded-2xl transition text-base">
+                <button id="nextBtn" onclick="nextWord()" class="mt-4 hidden w-full active:scale-95 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-6 rounded-2xl transition text-sm">
                     الكلمة التالية <i class="fa-solid fa-arrow-left mr-2"></i>
                 </button>
             </div>
         </section>
 
-        <!-- MANAGE SECTION -->
-        <section id="manageSection" class="hidden">
-            <!-- Add Word Box -->
-            <div class="bg-white p-5 rounded-3xl shadow-md border border-slate-200/60 mb-6">
-                <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-indigo-600 text-lg"></i> إضافة كلمة جديدة
+        <!-- SECTION 2: NOTEBOOK COPY MODE -->
+        <section id="sectionNotebook" class="hidden">
+            <div class="bg-indigo-900 text-white p-5 rounded-3xl shadow-lg border border-indigo-800 mb-4 relative overflow-hidden">
+                <div class="absolute -left-4 -bottom-4 opacity-10 text-8xl"><i class="fa-solid fa-pen-nib"></i></div>
+                <div class="relative z-10">
+                    <span class="bg-indigo-800 text-indigo-200 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider mb-2 inline-block">وضع الدفتر الخارجي</span>
+                    <h2 class="text-lg font-black mb-1">تدرب على الكتابة والنسخ اليدوي ✍️</h2>
+                    <p class="text-xs text-indigo-200 leading-relaxed">جهز قلمك ودفترك الخارجي، انقل الكلمة والجملة برعايتك الخاصة لترسيخ خطك وإملائك بنفس الوقت.</p>
+                </div>
+            </div>
+
+            <div id="notebookCard" class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-5 text-center">
+                <div class="flex justify-between items-center text-xs text-slate-500 mb-3 border-b pb-2">
+                    <span id="notebookProgress">بطاقة 1 من 10</span>
+                    <span id="notebookLevelTag" class="bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">المستوى A1</span>
+                </div>
+
+                <!-- Display Word Big -->
+                <div class="my-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+                    <span class="text-xs text-slate-400 font-bold block mb-1">الكلمة بالإنجليزية (السبلينق)</span>
+                    <div id="notebookWordEn" class="text-3xl sm:text-4xl font-mono font-black text-indigo-700 ltr tracking-wider my-1">--</div>
+                    <div id="notebookWordAr" class="text-base font-bold text-slate-700 mt-1">--</div>
+                </div>
+
+                <!-- Display Sentence -->
+                <div id="notebookSentenceBox" class="mb-5 bg-amber-50/60 border border-amber-200/60 p-4 rounded-2xl text-right">
+                    <span class="text-[11px] font-extrabold text-amber-800 block mb-1">💡 جملة تطبيقية للكتابة بالدفتر:</span>
+                    <p id="notebookSentenceEn" class="text-sm font-mono font-bold text-slate-800 ltr mb-1">--</p>
+                    <p id="notebookSentenceAr" class="text-xs text-slate-600">--</p>
+                </div>
+
+                <!-- Controls -->
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button onclick="playNotebookAudio()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-3 rounded-xl transition text-xs flex items-center justify-center gap-1.5 border border-indigo-100">
+                        <i class="fa-solid fa-volume-high text-sm"></i> نطق الكلمة
+                    </button>
+                    <button onclick="playNotebookSentenceAudio()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold py-3 px-3 rounded-xl transition text-xs flex items-center justify-center gap-1.5 border border-amber-200/60">
+                        <i class="fa-solid fa-circle-play text-sm"></i> نطق الجملة
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center gap-2 pt-2">
+                    <button onclick="prevNotebookCard()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-arrow-right ml-1"></i> السابقة
+                    </button>
+                    <button onclick="nextNotebookCard()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs transition">
+                        التالية <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: ENCYCLOPEDIA & PACKAGES (A1, A2, B1) -->
+        <section id="sectionEncyclopedia" class="hidden">
+            <!-- Level Selector Cards -->
+            <div class="grid grid-cols-3 gap-2 mb-5">
+                <button onclick="selectLevelPackage('A1')" id="btnLevelA1" class="p-3 rounded-2xl border-2 transition text-right bg-white border-indigo-600 shadow-sm">
+                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md block w-max mb-1">A1</span>
+                    <h3 class="text-xs font-black text-slate-800">مبتدئ</h3>
+                    <p class="text-[10px] text-slate-500 mt-0.5">أساسيات يومية</p>
+                </button>
+                <button onclick="selectLevelPackage('A2')" id="btnLevelA2" class="p-3 rounded-2xl border-2 transition text-right bg-white border-slate-200 hover:border-indigo-300">
+                    <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md block w-max mb-1">A2</span>
+                    <h3 class="text-xs font-black text-slate-800">دون المتوسط</h3>
+                    <p class="text-[10px] text-slate-500 mt-0.5">مواقف وسفر</p>
+                </button>
+                <button onclick="selectLevelPackage('B1')" id="btnLevelB1" class="p-3 rounded-2xl border-2 transition text-right bg-white border-slate-200 hover:border-indigo-300">
+                    <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md block w-max mb-1">B1</span>
+                    <h3 class="text-xs font-black text-slate-800">متوسط</h3>
+                    <p class="text-[10px] text-slate-500 mt-0.5">تعبير وتواصل</p>
+                </button>
+            </div>
+
+            <!-- Package Actions Banner -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div>
+                    <h2 id="encyclopediaTitle" class="text-sm font-extrabold text-slate-800">حزمة المستوى A1 (المبتدئ)</h2>
+                    <p class="text-xs text-slate-500">حزمة متكاملة تحتوي على الكلمات والجمل الشائعة</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="loadPackageToPractice()" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-gamepad"></i> ابدأ الاختبار
+                    </button>
+                    <button onclick="loadPackageToNotebook()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i> كتابة بالدفتر
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter / Search -->
+            <div class="relative mb-3">
+                <input type="text" id="vocabSearchInput" oninput="filterVocabList()" placeholder="ابحث عن كلمة أو ترجمة..." class="w-full p-3 pr-9 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-xs bg-white shadow-sm">
+                <i class="fa-solid fa-magnifying-glass absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+            </div>
+
+            <!-- Words & Sentences Dynamic Encyclopedia List -->
+            <div id="encyclopediaList" class="space-y-2">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- SECTION 4: MANAGE CUSTOM WORDS -->
+        <section id="sectionManage" class="hidden">
+            <div class="bg-white p-5 rounded-3xl shadow-md border border-slate-200/60 mb-5">
+                <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-indigo-600 text-base"></i> إضافة كلمة أو جملة خاصة بك
                 </h2>
-                <form onsubmit="addNewWord(event)" class="space-y-3">
+                <form onsubmit="addCustomWord(event)" class="space-y-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">الكلمة بالإنجليزية (English)</label>
-                        <input type="text" id="newWordEn" required autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="مثال: Schedule" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-sm ltr bg-slate-50">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">الكلمة / العبارة بالإنجليزية</label>
+                        <input type="text" id="newWordEn" required placeholder="مثال: Achievement" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-xs ltr bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">الترجمة بالعربية (Arabic)</label>
-                        <input type="text" id="newWordAr" required autocomplete="off" placeholder="مثال: جدول أوقات" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-sm bg-slate-50">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">الترجمة والمعنى بالعربية</label>
+                        <input type="text" id="newWordAr" required placeholder="مثال: إنجاز / تحقيق هدف" class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-xs bg-slate-50">
                     </div>
-                    <button type="submit" class="w-full active:scale-95 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-md flex justify-center items-center gap-2 text-sm mt-2">
-                        <i class="fa-solid fa-plus"></i> إضافة إلى التمارين
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">جملة توضيحية (اختياري للكتابة بالدفتر)</label>
+                        <input type="text" id="newSentenceEn" placeholder="مثال: Hard work leads to achievement." class="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:outline-none text-xs ltr bg-slate-50">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition shadow flex justify-center items-center gap-2 text-xs">
+                        <i class="fa-solid fa-plus"></i> إضافة إلى القائمة
                     </button>
                 </form>
             </div>
 
-            <!-- Words List for Mobile -->
-            <div class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800">كلماتك المضافة</h2>
-                    <button onclick="loadDefaultWords()" class="text-xs text-indigo-600 hover:underline font-bold">
-                        استعادة العينة الافتراضية
+            <!-- Custom Words List -->
+            <div class="bg-white rounded-3xl shadow-md border border-slate-200/60 p-4">
+                <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                    <h2 class="text-xs font-bold text-slate-800">كلماتك المضافة المخصصة</h2>
+                    <button onclick="clearCustomList()" class="text-[11px] text-rose-500 hover:underline font-bold">
+                        مسح القائمة المخصصة
                     </button>
                 </div>
-                
-                <div id="wordsMobileList" class="space-y-2">
-                    <!-- Dynamic cards for mobile view -->
+                <div id="customWordsList" class="space-y-2">
+                    <!-- Dynamic custom list -->
                 </div>
             </div>
         </section>
@@ -156,241 +273,387 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 sticky bottom-0 z-40">
-        مدرّب السبلينق التفاعلي 🚀 - مخصص للجوال
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
+        مدرّب الإملاء والمفردات - حزم مستويات A1, A2, B1 🚀
     </footer>
 
-    <!-- JavaScript Application Logic -->
     <script>
-        // Sample default words
-        const defaultWords = [
-            { id: '1', english: 'curious', arabic: 'فضولي / شغوف' },
-            { id: '2', english: 'famous', arabic: 'مشهور' },
-            { id: '3', english: 'shivering', arabic: 'يرتعش' },
-            { id: '4', english: 'missing', arabic: 'مفقود' },
-            { id: '5', english: 'amazed', arabic: 'مذهل / مندهش' },
-            { id: '6', english: 'swim', arabic: 'يسبح' },
-            { id: '7', english: 'distance', arabic: 'مسافة' },
-            { id: '8', english: 'rough', arabic: 'خشن / قاسي' },
-            { id: '9', english: 'heart', arabic: ' قلب ' },
-            { id: '10', english: 'die', arabic: 'الموت' },
-            { id: '11', english: 'freckles', arabic: 'النمش' },
-            { id: '12', english: 'headaches', arabic: 'الصداع' },
-            { id: '13', english: 'success', arabic: 'نجاح' },
-            { id: '14', english: 'operation', arabic: 'عملية' },
-            { id: '15', english: 'peace', arabic: 'سلام' },
-            { id: '16', english: 'dizzy', arabic: 'دوار / دائخ' },
-            { id: '17', english: 'kidding', arabic: 'يمازح / يمزح' },
-            { id: '18', english: 'rushed', arabic: 'متسرع' },
-            { id: '19', english: 'sharp', arabic: 'حاد' },
-            { id: '20', english: 'checkup', arabic: 'فحص' },
-        
-        ];
+        // CEFR Level Packages Datasets with Words, Translations, Context Sentences & Arabic Meanings
+        const levelPackages = {
+            A1: [
+                { id: 'a1_1', english: 'family', arabic: 'عائلة / أسرة', sentenceEn: 'I love spending time with my family.', sentenceAr: 'أحب قضاء الوقت مع عائلتي.' },
+                { id: 'a1_2', english: 'friend', arabic: 'صديق', sentenceEn: 'Ahmad is my best friend at school.', sentenceAr: 'أحمد هو صديقي المفضل في المدرسة.' },
+                { id: 'a1_3', english: 'happy', arabic: 'سعيد / مسرور', sentenceEn: 'She feels very happy today.', sentenceAr: 'هي تشعر بسعادة بالغة اليوم.' },
+                { id: 'a1_4', english: 'kitchen', arabic: 'مطبخ', sentenceEn: 'My mother is cooking in the kitchen.', sentenceAr: 'أمي تطبخ في المطبخ.' },
+                { id: 'a1_5', english: 'morning', arabic: 'صباح', sentenceEn: 'Good morning, have a nice day!', sentenceAr: 'صباح الخير، أتمنى لك يوماً جميلاً!' },
+                { id: 'a1_6', english: 'weather', arabic: 'الطقس / الجو', sentenceEn: 'The weather is warm and sunny.', sentenceAr: 'الطقس دافئ ومشمش.' },
+                { id: 'a1_7', english: 'welcome', arabic: 'مرحباً / أهلاً بك', sentenceEn: 'Welcome to our home!', sentenceAr: 'أهلاً وسهلاً بك في منزلنا!' },
+                { id: 'a1_8', english: 'student', arabic: 'طالب / تلميذ', sentenceEn: 'He is an active student.', sentenceAr: 'هو طالب نشيط.' },
+                { id: 'a1_9', english: 'travel', arabic: 'يسافر / سفر', sentenceEn: 'I want to travel around the world.', sentenceAr: 'أريد السفر حول العالم.' },
+                { id: 'a1_10', english: 'hospital', arabic: 'مستشفى', sentenceEn: 'The hospital is near the market.', sentenceAr: 'المستشفى قريب من السوق.' }
+            ],
+            A2: [
+                { id: 'a2_1', english: 'schedule', arabic: 'جدول مواعيد / تنظيم', sentenceEn: 'I need to check my work schedule.', sentenceAr: 'أحتاج إلى مراجعة جدول مواعيد عملي.' },
+                { id: 'a2_2', english: 'journey', arabic: 'رحلة / مسار', sentenceEn: 'The train journey took three hours.', sentenceAr: 'استغرقت رحلة القطار ثلاث ساعات.' },
+                { id: 'a2_3', english: 'decision', arabic: 'قرار', sentenceEn: 'It was a very good decision.', sentenceAr: 'لقد كان قراراً صائباً جداً.' },
+                { id: 'a2_4', english: 'shivering', arabic: 'يرتعش من البرد', sentenceEn: 'He was shivering in the cold wind.', sentenceAr: 'كان يرتعش في الرياح الباردة.' },
+                { id: 'a2_5', english: 'curious', arabic: 'فضولي / شغوف بـ المعرفة', sentenceEn: 'Children are always curious about everything.', sentenceAr: 'الأطفال دائماً فضوليون لمعرفة كل شيء.' },
+                { id: 'a2_6', english: 'distance', arabic: 'مسافة / بُعد', sentenceEn: 'What is the distance between two cities?', sentenceAr: 'ما هي المسافة بين المدينتين؟' },
+                { id: 'a2_7', english: 'advice', arabic: 'نصيحة', sentenceEn: 'Thank you for your valuable advice.', sentenceAr: 'شكراً لك على نصيحتك الثمينة.' },
+                { id: 'a2_8', english: 'expensive', arabic: 'غالي الثمن', sentenceEn: 'This new phone is too expensive.', sentenceAr: 'هذا الهاتف الجديد غالي الثمن جداً.' },
+                { id: 'a2_9', english: 'dangerous', arabic: 'خطير', sentenceEn: 'Driving too fast is dangerous.', sentenceAr: 'القيادة بسرعة كبيرة أمر خطير.' },
+                { id: 'a2_10', english: 'describe', arabic: 'يصف / يوضح', sentenceEn: 'Can you describe the lost object?', sentenceAr: 'هل يمكنك وصف الشيء المفقود؟' }
+            ],
+            B1: [
+                { id: 'b1_1', english: 'achievement', arabic: 'إنجاز / نجاح', sentenceEn: 'Passing the exam was a great achievement.', sentenceAr: 'كان اجتياز الاختبار إنجازاً عظيماً.' },
+                { id: 'b1_2', english: 'opportunity', arabic: 'فرصة ثنائية / مواتية', sentenceEn: 'Do not miss this golden opportunity.', sentenceAr: 'لا تفوّت هذه الفرصة الذهبية.' },
+                { id: 'b1_3', english: 'environment', arabic: 'البيئة', sentenceEn: 'We must protect our natural environment.', sentenceAr: 'يجب علينا حماية بيئتنا الطبيعية.' },
+                { id: 'b1_4', english: 'recommend', arabic: 'يوصي بـ / يرشح', sentenceEn: 'I highly recommend reading this book.', sentenceAr: 'أوصي بشدة بقراءة هذا الكتاب.' },
+                { id: 'b1_5', english: 'challenge', arabic: 'تحدي', sentenceEn: 'Learning a new skill is a nice challenge.', sentenceAr: 'تعلم مهارة جديدة هو تحدٍ جميل.' },
+                { id: 'b1_6', english: 'necessary', arabic: 'ضروري / هام', sentenceEn: 'Sleep is necessary for good health.', sentenceAr: 'النوم ضروري للصحة الجيدة.' },
+                { id: 'b1_7', english: 'confidence', arabic: 'ثقة بالنفس', sentenceEn: 'Practice gives you confidence.', sentenceAr: 'الممارسة تمنحك الثقة بالنفس.' },
+                { id: 'b1_8', english: 'solution', arabic: 'حل لـ مشكلة', sentenceEn: 'We found an easy solution to the problem.', sentenceAr: 'وجدنا حلاً سهلاً للمشكلة.' },
+                { id: 'b1_9', english: 'development', arabic: 'تطوير / تنمية', sentenceEn: 'Personal development takes time and effort.', sentenceAr: 'التطوير الشخصي يتطلب وقتاً وجهداً.' },
+                { id: 'b1_10', english: 'communication', arabic: 'تواصل / اتصالات', sentenceEn: 'Good communication builds strong relationships.', sentenceAr: 'التواصل الجيد يبني علاقات قوية.' }
+            ]
+        };
 
-        // App state
-        let wordsList = JSON.parse(localStorage.getItem('spellingWords')) || defaultWords;
+        // App State
+        let currentSelectedLevel = 'A1';
+        let activePracticeList = [...levelPackages['A1']];
+        let customWords = JSON.parse(localStorage.getItem('customSpellingWords')) || [];
         let currentIndex = 0;
         let streak = 0;
+        let notebookIndex = 0;
 
-        // Initialize App on DOM Ready
+        // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
-            saveWordsToStorage();
-            updateStats();
-            renderWordsList();
+            renderEncyclopediaList();
+            renderCustomWordsList();
             startPracticeSession();
+            updateStatsBadge();
         });
 
-        // Save data to localStorage
-        function saveWordsToStorage() {
-            localStorage.setItem('spellingWords', JSON.stringify(wordsList));
-            updateStats();
+        // Update Stats Badge
+        function updateStatsBadge() {
+            document.getElementById('statsBadge').innerText = `${activePracticeList.length} مفردة`;
+            document.getElementById('activePackageLabel').innerText = `الحزمة النشطة: مستوى ${currentSelectedLevel}`;
         }
 
-        // Update top badge count
-        function updateStats() {
-            document.getElementById('statsBadge').innerText = `${wordsList.length} كلمات في قائمتك`;
+        // Navigation Switcher
+        function switchMainTab(tab) {
+            const tabs = ['practice', 'notebook', 'encyclopedia', 'manage'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`section${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const btn = document.getElementById(`nav${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tab) {
+                    sec.classList.remove('hidden');
+                    sec.classList.add('block');
+                    btn.className = 'py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 bg-indigo-600 text-white shadow';
+                } else {
+                    sec.classList.add('hidden');
+                    sec.classList.remove('block');
+                    btn.className = 'py-2.5 rounded-xl transition-all flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-indigo-600';
+                }
+            });
+
+            if (tab === 'practice') startPracticeSession();
+            if (tab === 'notebook') renderNotebookCard();
         }
 
-        // Tab Switcher
-        function switchTab(tabName) {
-            const practiceSection = document.getElementById('practiceSection');
-            const manageSection = document.getElementById('manageSection');
-            const tabPractice = document.getElementById('tabPractice');
-            const tabManage = document.getElementById('tabManage');
-
-            if (tabName === 'practice') {
-                practiceSection.classList.remove('hidden');
-                manageSection.classList.add('hidden');
-                tabPractice.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
-                tabManage.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
-                startPracticeSession();
-            } else {
-                practiceSection.classList.add('hidden');
-                manageSection.classList.remove('hidden');
-                tabManage.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
-                tabPractice.className = 'py-3 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-indigo-600';
-            }
-        }
-
-        // TTS Audio Engine with Mobile Gesture compatibility
+        // Audio Engine
         function playAudio(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Reset speech queue
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
-                utterance.rate = 0.85; // Natural slower pace for learning
+                utterance.rate = 0.85;
                 window.speechSynthesis.speak(utterance);
             }
         }
 
         function playCurrentWordAudio() {
-            if (wordsList.length > 0 && wordsList[currentIndex]) {
-                playAudio(wordsList[currentIndex].english);
+            if (activePracticeList.length > 0 && activePracticeList[currentIndex]) {
+                playAudio(activePracticeList[currentIndex].english);
             }
         }
 
-        // Start / Setup Card
+        // Practice Session Handlers
         function startPracticeSession() {
-            const emptyWarning = document.getElementById('emptyWarning');
-            const practiceCard = document.getElementById('practiceCard');
+            const warning = document.getElementById('emptyPracticeWarning');
+            const card = document.getElementById('practiceCard');
 
-            if (wordsList.length === 0) {
-                emptyWarning.classList.remove('hidden');
-                practiceCard.classList.add('hidden');
+            if (activePracticeList.length === 0) {
+                warning.classList.remove('hidden');
+                card.classList.add('hidden');
                 return;
             }
 
-            emptyWarning.classList.add('hidden');
-            practiceCard.classList.remove('hidden');
+            warning.classList.add('hidden');
+            card.classList.remove('hidden');
 
-            if (currentIndex >= wordsList.length) {
-                currentIndex = 0; // Loop list
+            if (currentIndex >= activePracticeList.length) {
+                currentIndex = 0;
             }
 
-            const currentWord = wordsList[currentIndex];
-            document.getElementById('arabicMeaning').innerText = currentWord.arabic;
-            document.getElementById('progressText').innerText = `الكلمة ${currentIndex + 1} من ${wordsList.length}`;
+            const current = activePracticeList[currentIndex];
+            document.getElementById('arabicMeaning').innerText = current.arabic;
+            document.getElementById('progressText').innerText = `الكلمة ${currentIndex + 1} من ${activePracticeList.length}`;
             
+            const hintElem = document.getElementById('sentenceHint');
+            if (current.sentenceAr) {
+                hintElem.innerText = `مثال: "${current.sentenceAr}"`;
+                hintElem.classList.remove('hidden');
+            } else {
+                hintElem.classList.add('hidden');
+            }
+
             const userInput = document.getElementById('userInput');
             userInput.value = '';
             userInput.disabled = false;
 
-            document.getElementById('feedback').className = 'mt-4 hidden p-4 rounded-2xl text-center font-bold text-sm';
+            document.getElementById('feedback').className = 'mt-4 hidden p-4 rounded-2xl text-center font-bold text-xs';
             document.getElementById('nextBtn').classList.add('hidden');
             document.getElementById('submitBtn').classList.remove('hidden');
 
-            // Play word sound on load
             playCurrentWordAudio();
         }
 
-        // Check Spelling
         function checkSpelling(e) {
             e.preventDefault();
             const userInput = document.getElementById('userInput');
-            const inputVal = userInput.value.trim().toLowerCase();
-            const targetWord = wordsList[currentIndex].english.trim().toLowerCase();
+            const val = userInput.value.trim().toLowerCase();
+            const target = activePracticeList[currentIndex].english.trim().toLowerCase();
             const feedback = document.getElementById('feedback');
             const submitBtn = document.getElementById('submitBtn');
             const nextBtn = document.getElementById('nextBtn');
 
-            if (!inputVal) return;
+            if (!val) return;
 
             feedback.classList.remove('hidden');
 
-            if (inputVal === targetWord) {
-                // Correct
+            if (val === target) {
                 streak++;
-                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
-                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-lg ml-1"></i> إجابة صحيحة ممتاز! <br><span class="font-mono text-base font-black tracking-wider text-emerald-900">${wordsList[currentIndex].english}</span>`;
+                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-xs bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-base ml-1"></i> إجابة صحيحة ممتازة! <br><span class="font-mono text-base font-black tracking-wider text-emerald-900">${activePracticeList[currentIndex].english}</span>`;
                 
                 userInput.disabled = true;
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
             } else {
-                // Wrong
                 streak = 0;
-                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
-                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg ml-1"></i> تحتاچ تكرار! الإملاء الصحيح: <br><span class="font-mono text-base font-black tracking-wider text-rose-900 underline">${wordsList[currentIndex].english}</span>`;
+                feedback.className = 'mt-4 p-4 rounded-2xl text-center font-bold text-xs bg-rose-100 text-rose-800 border border-rose-300';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-base ml-1"></i> خطأ! الإملاء الصحيح: <br><span class="font-mono text-base font-black tracking-wider text-rose-900 underline">${activePracticeList[currentIndex].english}</span>`;
                 
                 userInput.disabled = true;
                 submitBtn.classList.add('hidden');
                 nextBtn.classList.remove('hidden');
 
                 // Re-queue incorrect word for practice repetition
-                wordsList.push(wordsList[currentIndex]);
-                updateStats();
+                activePracticeList.push(activePracticeList[currentIndex]);
+                updateStatsBadge();
             }
 
             document.getElementById('streakCount').innerHTML = `<i class="fa-solid fa-fire text-amber-500"></i> السلسلة: ${streak}`;
         }
 
-        // Next word
         function nextWord() {
             currentIndex++;
             startPracticeSession();
         }
 
-        // Render Words for Mobile Management Section
-        function renderWordsList() {
-            const container = document.getElementById('wordsMobileList');
+        // Notebook Copying Mode Handlers
+        function renderNotebookCard() {
+            if (activePracticeList.length === 0) return;
+
+            if (notebookIndex >= activePracticeList.length) notebookIndex = 0;
+            if (notebookIndex < 0) notebookIndex = activePracticeList.length - 1;
+
+            const item = activePracticeList[notebookIndex];
+            document.getElementById('notebookProgress').innerText = `بطاقة ${notebookIndex + 1} من ${activePracticeList.length}`;
+            document.getElementById('notebookLevelTag').innerText = `المستوى ${currentSelectedLevel}`;
+            document.getElementById('notebookWordEn').innerText = item.english;
+            document.getElementById('notebookWordAr').innerText = item.arabic;
+
+            const sentenceBox = document.getElementById('notebookSentenceBox');
+            if (item.sentenceEn) {
+                sentenceBox.classList.remove('hidden');
+                document.getElementById('notebookSentenceEn').innerText = item.sentenceEn;
+                document.getElementById('notebookSentenceAr').innerText = item.sentenceAr || '';
+            } else {
+                sentenceBox.classList.add('hidden');
+            }
+        }
+
+        function playNotebookAudio() {
+            if (activePracticeList[notebookIndex]) playAudio(activePracticeList[notebookIndex].english);
+        }
+
+        function playNotebookSentenceAudio() {
+            if (activePracticeList[notebookIndex] && activePracticeList[notebookIndex].sentenceEn) {
+                playAudio(activePracticeList[notebookIndex].sentenceEn);
+            }
+        }
+
+        function nextNotebookCard() {
+            notebookIndex++;
+            renderNotebookCard();
+        }
+
+        function prevNotebookCard() {
+            notebookIndex--;
+            renderNotebookCard();
+        }
+
+        // Encyclopedia & Packages Handlers
+        function selectLevelPackage(level) {
+            currentSelectedLevel = level;
+            ['A1', 'A2', 'B1'].forEach(l => {
+                const btn = document.getElementById(`btnLevel${l}`);
+                if (l === level) {
+                    btn.className = 'p-3 rounded-2xl border-2 transition text-right bg-white border-indigo-600 shadow-sm';
+                } else {
+                    btn.className = 'p-3 rounded-2xl border-2 transition text-right bg-white border-slate-200 hover:border-indigo-300';
+                }
+            });
+
+            document.getElementById('encyclopediaTitle').innerText = `حزمة المستوى ${level} (${level === 'A1' ? 'المبتدئ' : level === 'A2' ? 'دون المتوسط' : 'المتوسط'})`;
+            renderEncyclopediaList();
+        }
+
+        function loadPackageToPractice() {
+            if (currentSelectedLevel === 'CUSTOM') {
+                activePracticeList = [...customWords];
+            } else {
+                activePracticeList = [...levelPackages[currentSelectedLevel]];
+            }
+            currentIndex = 0;
+            streak = 0;
+            updateStatsBadge();
+            switchMainTab('practice');
+        }
+
+        function loadPackageToNotebook() {
+            if (currentSelectedLevel === 'CUSTOM') {
+                activePracticeList = [...customWords];
+            } else {
+                activePracticeList = [...levelPackages[currentSelectedLevel]];
+            }
+            notebookIndex = 0;
+            updateStatsBadge();
+            switchMainTab('notebook');
+        }
+
+        function renderEncyclopediaList() {
+            const container = document.getElementById('encyclopediaList');
             container.innerHTML = '';
 
-            if (wordsList.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm">لا توجد كلمات في قائمتك.</div>`;
+            let list = levelPackages[currentSelectedLevel] || [];
+            if (currentSelectedLevel === 'CUSTOM') list = customWords;
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">لا توجد كلمات في هذه الحزمة.</div>`;
                 return;
             }
 
-            wordsList.forEach((word) => {
+            list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100';
+                card.className = 'bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-2';
                 card.innerHTML = `
-                    <div class="flex items-center space-x-3 space-x-reverse">
-                        <button onclick="playAudio('${word.english}')" class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center active:scale-90 transition">
-                            <i class="fa-solid fa-volume-high text-sm"></i>
-                        </button>
+                    <div class="flex items-center justify-between">
                         <div>
-                            <div class="font-mono font-bold text-slate-800 text-base ltr text-right">${word.english}</div>
-                            <div class="text-xs text-slate-500">${word.arabic}</div>
+                            <div class="font-mono font-bold text-indigo-700 text-base ltr">${item.english}</div>
+                            <div class="text-xs text-slate-600 font-bold">${item.arabic}</div>
                         </div>
+                        <button onclick="playAudio('${item.english}')" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center active:scale-90 transition">
+                            <i class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
                     </div>
-                    <button onclick="deleteWord('${word.id}')" class="text-rose-400 hover:text-rose-600 p-2 active:scale-90 transition">
-                        <i class="fa-solid fa-trash-can text-base"></i>
-                    </button>
+                    ${item.sentenceEn ? `
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
+                            <div class="font-mono text-slate-800 ltr font-medium">${item.sentenceEn}</div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">${item.sentenceAr}</div>
+                        </div>
+                    ` : ''}
                 `;
                 container.appendChild(card);
             });
         }
 
-        function addNewWord(e) {
+        function filterVocabList() {
+            const query = document.getElementById('vocabSearchInput').value.toLowerCase().trim();
+            const cards = document.getElementById('encyclopediaList').children;
+            
+            let list = levelPackages[currentSelectedLevel] || [];
+            if (currentSelectedLevel === 'CUSTOM') list = customWords;
+
+            list.forEach((item, idx) => {
+                if (!cards[idx]) return;
+                const match = item.english.toLowerCase().includes(query) || item.arabic.includes(query) || (item.sentenceEn && item.sentenceEn.toLowerCase().includes(query));
+                cards[idx].style.display = match ? 'flex' : 'none';
+            });
+        }
+
+        // Custom Word Manager Handlers
+        function addCustomWord(e) {
             e.preventDefault();
             const enInput = document.getElementById('newWordEn');
             const arInput = document.getElementById('newWordAr');
+            const sentenceEnInput = document.getElementById('newSentenceEn');
 
             const newEntry = {
-                id: Date.now().toString(),
+                id: 'custom_' + Date.now(),
                 english: enInput.value.trim(),
-                arabic: arInput.value.trim()
+                arabic: arInput.value.trim(),
+                sentenceEn: sentenceEnInput.value.trim() || '',
+                sentenceAr: ''
             };
 
-            wordsList.unshift(newEntry);
-            saveWordsToStorage();
-            renderWordsList();
+            customWords.unshift(newEntry);
+            localStorage.setItem('customSpellingWords', JSON.stringify(customWords));
 
             enInput.value = '';
             arInput.value = '';
-            enInput.focus();
+            sentenceEnInput.value = '';
+
+            renderCustomWordsList();
         }
 
-        function deleteWord(id) {
-            wordsList = wordsList.filter(item => item.id !== id);
-            saveWordsToStorage();
-            renderWordsList();
+        function deleteCustomWord(id) {
+            customWords = customWords.filter(w => w.id !== id);
+            localStorage.setItem('customSpellingWords', JSON.stringify(customWords));
+            renderCustomWordsList();
         }
 
-        function loadDefaultWords() {
-            wordsList = [...defaultWords];
-            saveWordsToStorage();
-            renderWordsList();
+        function clearCustomList() {
+            customWords = [];
+            localStorage.removeItem('customSpellingWords');
+            renderCustomWordsList();
+        }
+
+        function renderCustomWordsList() {
+            const container = document.getElementById('customWordsList');
+            container.innerHTML = '';
+
+            if (customWords.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">لم تقم بإضافة أي كلمات مخصصة حتى الآن.</div>`;
+                return;
+            }
+
+            customWords.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs';
+                card.innerHTML = `
+                    <div>
+                        <span class="font-mono font-bold text-slate-800 ltr block">${item.english}</span>
+                        <span class="text-slate-500">${item.arabic}</span>
+                    </div>
+                    <button onclick="deleteCustomWord('${item.id}')" class="text-rose-400 hover:text-rose-600 p-2 active:scale-90 transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
         }
     </script>
 </body>
